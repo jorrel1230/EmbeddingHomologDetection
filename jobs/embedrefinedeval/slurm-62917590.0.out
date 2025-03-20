@@ -1,0 +1,8 @@
+My SLURM_ARRAY_JOB_ID is 62917590.
+My SLURM_ARRAY_TASK_ID is 0
+Executing on the machine: della-l02g14
+Using SLURM_ARRAY_TASK_ID: 0
+CUDA available: True
+Processing batch 0: sequences 0 to 7195 (total: 7195)
+Results saved to /scratch/gpfs/jr8867/evals/protein-embeddings-refined/batch-0-5
+AUC: 0.8004

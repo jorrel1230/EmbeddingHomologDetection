@@ -1,13 +1,12 @@
 {
 	"folders": [
 		{
+			"name": "embedding-homolog-detection",
 			"path": "."
 		},
 		{
+			"name": "jr8867",
 			"path": "../../../scratch/gpfs/jr8867"
-		},
-		{
-			"path": "../jobs"
 		}
 	],
 	"settings": {}
