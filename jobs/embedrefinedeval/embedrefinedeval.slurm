@@ -8,7 +8,7 @@
 #SBATCH --mem-per-cpu=4G         # memory per cpu-core (4G is default)
 #SBATCH --gres=gpu:1
 #SBATCH --time=00:60:00          # total run time limit (HH:MM:SS)
-#SBATCH --array=0,3              # job array with 100 jobs (matching num_ranges in script)
+#SBATCH --array=0,4              # job array with 100 jobs (matching num_ranges in script)
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
 #SBATCH --mail-user=jorrel@princeton.edu

@@ -38,8 +38,8 @@ class ProjectionHead(nn.Module):
 
 # Load the saved model
 projection_model = ProjectionHead(input_dim=1280, output_dim=128)
-projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/models/projection_model_old.pth"))
-projection_model.to("cuda")
+projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/models/projection_model_old.pth", map_location=device))
+projection_model.to(device)
 projection_model.eval()
 
 def embed_sequence(sequence):
@@ -76,7 +76,7 @@ def embed_sequence(sequence):
 
     # Put the sequence through the projection head
     with torch.no_grad():
-        seq_embedding = projection_model(torch.tensor(seq_embedding, dtype=torch.float32).to("cuda")).cpu().numpy()
+        seq_embedding = projection_model(torch.tensor(seq_embedding, dtype=torch.float32).to(device)).cpu().numpy()
 
     return seq_embedding.astype('float32')
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     # Use the normalized index
     index = faiss.read_index('/scratch/gpfs/jr8867/embeddings/scop/protein_embeddings_refined_old.index')
 
-    for i in range(5, 25):
+    for i in range(5, 10):
         print(f'Query sequence {i}:')
         example_seq = scop_df.iloc[i]['seq']
         similar = search_similar_proteins(example_seq, index, scop_df, k=5)
