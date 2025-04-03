@@ -7,7 +7,6 @@ from sklearn.metrics import roc_curve, auc
 from tqdm import tqdm
 import gc
 import os
-import sys
 
 cuda_available = torch.cuda.is_available()
 print("CUDA available:", cuda_available)
@@ -15,20 +14,6 @@ device = torch.device("cuda" if cuda_available else "cpu")
 
 # Set environment variable to help with memory fragmentation
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
-
-# Projection Head Model
-class ProjectionHead(nn.Module):
-    def __init__(self, input_dim, output_dim=256):
-        super(ProjectionHead, self).__init__()
-        self.model = nn.Sequential(
-            nn.Linear(input_dim, 512),
-            nn.LeakyReLU(0.1),
-            nn.Linear(512, output_dim),
-        )
-    
-    def forward(self, x):
-        return self.model(x)
-
 
 def search_similar_proteins(query_embedding, index, superfamilies, families, k=5):
     # Search in FAISS index
@@ -71,13 +56,13 @@ def evaluate_similarity_search(index, embeddings, indicies, superfamilies, famil
     
     print(f"Processing {num_sequences} sequences in {num_batches} batches...")
     
-    for batch_idx in range(0, num_sequences, batch_size):
+    for batch_idx in tqdm(range(0, num_sequences, batch_size)):
         # Clear GPU cache and system memory before processing each batch
         if cuda_available: torch.cuda.empty_cache()
         gc.collect()
 
         batch_end = min(batch_idx + batch_size, num_sequences)
-        print(f"Processing batch {batch_idx//batch_size + 1}/{num_batches} (sequences {batch_idx}-{batch_end-1})")
+        # print(f"Processing batch {batch_idx//batch_size + 1}/{num_batches} (sequences {batch_idx}-{batch_end-1})")
         
         for i in range(batch_idx, batch_end):
             # Get the query embedding
@@ -147,7 +132,7 @@ def save_results(all_scores, all_labels, output_dir, set_type):
 
 if __name__ == "__main__":
     # Set k for nearest neighbors search
-    k_neighbors = 1000  # Adjust based on memory availability
+    k_neighbors = 100  # Adjust based on memory availability
 
     # Train set
     train_index = faiss.read_index('/scratch/gpfs/jr8867/main/contr-v1/embeddings/train_projected_embeddings.index')

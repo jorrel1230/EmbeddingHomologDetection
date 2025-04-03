@@ -60,7 +60,7 @@ def get_triplets(embeddings, superfamilies, families, num_triplets=10000):
             label_dict[label] = []
         label_dict[label].append(i)
     
-    for _ in range(num_triplets):
+    for _ in tqdm(range(num_triplets), desc="Getting triplets", unit="triplet"):
         anchor_idx = np.random.randint(0, len(superfamilies))
         anchor_label = superfamilies[anchor_idx]
         
@@ -115,12 +115,13 @@ def train_projection_head(train_embeddings, train_superfamilies, train_families,
 
     for epoch in range(epochs):
 
+        # Get triplets
         train_triplets = get_triplets(train_embeddings, train_superfamilies, train_families, num_triplets=train_triplet_count)
         
         model.train()
         total_loss = 0
 
-        for i in range(0, len(train_triplets), batch_size):
+        for i in tqdm(range(0, len(train_triplets), batch_size), desc=f"Epoch {epoch+1}", unit="batch"):
             batch_triplets = train_triplets[i:i + batch_size]
             anchors = torch.stack([train_dataset[anchor_idx][0] for anchor_idx, _, _ in batch_triplets]).to(device)
             positives = torch.stack([train_dataset[pos_idx][0] for _, pos_idx, _ in batch_triplets]).to(device)
@@ -180,8 +181,13 @@ if __name__ == "__main__":
         test_embeddings, test_superfamilies, test_families,
         output_dir=output_dir, model_name="contr-v1-large",
         epochs=30, lr=0.001, triplet_margin=0.2, 
-        train_triplet_count=1000000, test_triplet_count=10000, 
+        train_triplet_count=2000000, test_triplet_count=10000, 
         batch_size=1000
     )
+
+    # Save the model
+    model_path = os.path.join(output_dir, "contr-v1-large-end.pth")
+    torch.save(projection_model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
 
     print(f"Training completed. Best loss achieved: {best_loss:.4e}")
