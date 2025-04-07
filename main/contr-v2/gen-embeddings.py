@@ -21,7 +21,7 @@ class ProjectionHead(nn.Module):
 
 # Load the saved model
 projection_model = ProjectionHead(input_dim=1280, output_dim=256)
-projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/main/contr-v1/models/contr-v1-large.pth"))
+projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/main/contr-v2/models/contr-v2-large.pth"))
 projection_model.to(device)
 projection_model.eval()
 
@@ -31,16 +31,17 @@ def fetch_data(arr_type):
     if arr_type != 'train' and arr_type != 'test':
         raise ValueError("arr_type must be 'train' or 'test'")
     
-    embeddings = np.load(f'/scratch/gpfs/jr8867/main/db/train-test/{arr_type}_embeddings.npy')
-    indicies = np.load(f'/scratch/gpfs/jr8867/main/db/train-test/{arr_type}_indicies.npy')
-    superfamilies = np.load(f'/scratch/gpfs/jr8867/main/db/train-test/{arr_type}_superfamilies.npy')
-    families = np.load(f'/scratch/gpfs/jr8867/main/db/train-test/{arr_type}_families.npy')
-    return embeddings, indicies, superfamilies, families
+    embeddings = np.load(f'/scratch/gpfs/jr8867/main/db/train-test-fold/{arr_type}_embeddings.npy')
+    indicies = np.load(f'/scratch/gpfs/jr8867/main/db/train-test-fold/{arr_type}_indicies.npy')
+    superfamilies = np.load(f'/scratch/gpfs/jr8867/main/db/train-test-fold/{arr_type}_superfamilies.npy')
+    families = np.load(f'/scratch/gpfs/jr8867/main/db/train-test-fold/{arr_type}_families.npy')
+    folds = np.load(f'/scratch/gpfs/jr8867/main/db/train-test-fold/{arr_type}_folds.npy')
+    return embeddings, indicies, superfamilies, families, folds
 
 print("Fetching data...")
 
-train_embeddings, train_indicies, train_superfamilies, train_families = fetch_data('train')
-test_embeddings, test_indicies, test_superfamilies, test_families = fetch_data('test')
+train_embeddings, train_indicies, train_superfamilies, train_families, train_folds = fetch_data('train')
+test_embeddings, test_indicies, test_superfamilies, test_families, test_folds = fetch_data('test')
 
 print(f"Train embeddings shape: {train_embeddings.shape}")
 print(f"Train indicies shape: {train_indicies.shape}")
@@ -59,16 +60,16 @@ with torch.no_grad():
 print(f"Train Refined embeddings shape: {train_projected_embeddings.shape}")
 print(f"Test Refined embeddings shape: {test_projected_embeddings.shape}")
 
-np.save("/scratch/gpfs/jr8867/main/contr-v1/embeddings/train_projected_embeddings.npy", train_projected_embeddings)
-np.save("/scratch/gpfs/jr8867/main/contr-v1/embeddings/test_projected_embeddings.npy", test_projected_embeddings)
+np.save("/scratch/gpfs/jr8867/main/contr-v2/embeddings/train_projected_embeddings.npy", train_projected_embeddings)
+np.save("/scratch/gpfs/jr8867/main/contr-v2/embeddings/test_projected_embeddings.npy", test_projected_embeddings)
 
 # FAISS Indexing
 train_index = faiss.IndexFlatL2(train_projected_embeddings.shape[1])
 train_index.add(train_projected_embeddings)
-faiss.write_index(train_index, "/scratch/gpfs/jr8867/main/contr-v1/embeddings/train_projected_embeddings.index")
+faiss.write_index(train_index, "/scratch/gpfs/jr8867/main/contr-v2/embeddings/train_projected_embeddings.index")
 
 test_index = faiss.IndexFlatL2(test_projected_embeddings.shape[1])
 test_index.add(test_projected_embeddings)
-faiss.write_index(test_index, "/scratch/gpfs/jr8867/main/contr-v1/embeddings/test_projected_embeddings.index")
+faiss.write_index(test_index, "/scratch/gpfs/jr8867/main/contr-v2/embeddings/test_projected_embeddings.index")
 
 print("Saved refined embeddings and FAISS index!")
