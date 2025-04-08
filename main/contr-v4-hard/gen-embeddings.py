@@ -21,7 +21,7 @@ class ProjectionHead(nn.Module):
 
 # Load the saved model
 projection_model = ProjectionHead(input_dim=1280, output_dim=256)
-projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/main/contr-v4-hard/models/contr-v4-small-hard.pth"))
+projection_model.load_state_dict(torch.load("/scratch/gpfs/jr8867/main/contr-v4-hard/models/contr-v4-large-hard.pth"))
 projection_model.to(device)
 projection_model.eval()
 
