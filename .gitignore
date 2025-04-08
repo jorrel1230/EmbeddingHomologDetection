@@ -173,7 +173,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-
 slurm-*.out
 slurm-*.err
 slurm-*.log
+
+.cursorrules
+IW.code-workspace
