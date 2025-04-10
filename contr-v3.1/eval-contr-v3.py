@@ -40,7 +40,7 @@ def search_similar_proteins(query_embedding, index, superfamilies, families, k=5
             'superfamily': sf,
             'family': fa
         })
-        
+
         # Stop once we have k results (after filtering out the query)
         if len(results) >= k:
             break
@@ -143,11 +143,11 @@ if __name__ == "__main__":
     k_neighbors = 100  # Adjust based on memory availability
 
     # Train set
-    train_index = faiss.read_index('/scratch/gpfs/jr8867/main/contr-v1/embeddings/train_projected_embeddings.index')
-    train_embeddings = np.load('/scratch/gpfs/jr8867/main/contr-v1/embeddings/train_projected_embeddings.npy')
-    train_indices = np.load('/scratch/gpfs/jr8867/main/db/train-test/train_indicies.npy')
-    train_superfamilies = np.load('/scratch/gpfs/jr8867/main/db/train-test/train_superfamilies.npy')
-    train_families = np.load('/scratch/gpfs/jr8867/main/db/train-test/train_families.npy')
+    train_index = faiss.read_index('/scratch/gpfs/jr8867/main/contr-v3-Npair/embeddings/train_projected_embeddings.index')
+    train_embeddings = np.load('/scratch/gpfs/jr8867/main/contr-v3-Npair/embeddings/train_projected_embeddings.npy')
+    train_indices = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/train_indicies.npy')
+    train_superfamilies = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/train_superfamilies.npy')
+    train_families = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/train_families.npy')
     
     train_scores, train_labels = evaluate_similarity_search(
         train_index, train_embeddings, train_indices, train_superfamilies, train_families, 
@@ -155,23 +155,23 @@ if __name__ == "__main__":
     )
 
     # Save results instead of plotting in-memory
-    save_results(train_scores, train_labels, '/scratch/gpfs/jr8867/main/contr-v1/evals', 'train')
+    save_results(train_scores, train_labels, '/scratch/gpfs/jr8867/main/contr-v3-Npair/evals', 'train')
 
     del train_index, train_embeddings, train_indices, train_superfamilies, train_families
     gc.collect()
     
     # Test set
-    test_index = faiss.read_index('/scratch/gpfs/jr8867/main/contr-v1/embeddings/test_projected_embeddings.index')
-    test_embeddings = np.load('/scratch/gpfs/jr8867/main/contr-v1/embeddings/test_projected_embeddings.npy')
-    test_indices = np.load('/scratch/gpfs/jr8867/main/db/train-test/test_indicies.npy')
-    test_superfamilies = np.load('/scratch/gpfs/jr8867/main/db/train-test/test_superfamilies.npy')
-    test_families = np.load('/scratch/gpfs/jr8867/main/db/train-test/test_families.npy')
+    test_index = faiss.read_index('/scratch/gpfs/jr8867/main/contr-v3-Npair/embeddings/test_projected_embeddings.index')
+    test_embeddings = np.load('/scratch/gpfs/jr8867/main/contr-v3-Npair/embeddings/test_projected_embeddings.npy')
+    test_indices = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/test_indicies.npy')
+    test_superfamilies = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/test_superfamilies.npy')
+    test_families = np.load('/scratch/gpfs/jr8867/main/db/train-test-fold/test_families.npy')
 
     test_scores, test_labels = evaluate_similarity_search(
         test_index, test_embeddings, test_indices, test_superfamilies, test_families, 
         k=k_neighbors 
     )
-    save_results(test_scores, test_labels, '/scratch/gpfs/jr8867/main/contr-v1/evals', 'test')
+    save_results(test_scores, test_labels, '/scratch/gpfs/jr8867/main/contr-v3-Npair/evals', 'test')
 
     del test_index, test_embeddings, test_indices, test_superfamilies, test_families
     gc.collect()

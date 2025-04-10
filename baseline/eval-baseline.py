@@ -17,7 +17,7 @@ os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
 def search_similar_proteins(query_embedding, index, superfamilies, families, k=5):
     # Search in FAISS index
-    D, I = index.search(query_embedding, k)
+    D, I = index.search(query_embedding, k+1)
     
     # Get the indices and distances for the first query
     neighbor_indices = I[0]
@@ -30,6 +30,10 @@ def search_similar_proteins(query_embedding, index, superfamilies, families, k=5
     # Return a list of tuples containing (index, distance, superfamily, family)
     results = []
     for idx, dist, sf, fa in zip(neighbor_indices, neighbor_distances, neighbor_superfamilies, neighbor_families):
+        # Skip the result if it's the query itself (distance will be 0 or very close to 0)
+        if dist < 1e-7:
+            continue
+        
         results.append({
             'index': idx,
             'distance': dist,
@@ -37,6 +41,10 @@ def search_similar_proteins(query_embedding, index, superfamilies, families, k=5
             'family': fa
         })
         
+        # Stop once we have k results (after filtering out the query)
+        if len(results) >= k:
+            break
+            
     return results
 
 def evaluate_similarity_search(index, embeddings, indicies, superfamilies, families, k=5, batch_size=10):
